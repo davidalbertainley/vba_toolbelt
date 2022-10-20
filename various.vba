@@ -72,5 +72,56 @@ Sub showAllItems()
     Next
 End Sub
 
+' Need to figure out if a field in your list of fields is actually being used in a pivot anywhere?
+' This VBA will iterate through every pivot table in the workbook and list every field being used in it.
+Sub fieldBeingUsed()
+    Dim pvt As PivotTable
+    Dim sh As Worksheet
+    Dim num As Integer
+    
+    Sheets.Add After:=ActiveSheet
+    ActiveSheet.Name = "USED FIELDS"
+    For Each sh In ThisWorkbook.Worksheets
+        If sh.PivotTables.Count > 0 Then
+            For Each pvt In sh.PivotTables
+            
+                'column fields
+                For Each cf In pvt.ColumnFields
+                    num = num + 1
+                    Cells(num, 1) = cf.SourceName
+                    Cells(num, 2) = sh.Name
+                Next cf
+                
+                'row fields
+                For Each rf In pvt.RowFields
+                    num = num + 1
+                    Cells(num, 1) = rf.SourceName
+                    Cells(num, 2) = sh.Name
+                Next rf
+                
+                'filter fields
+                For Each ff In pvt.ActiveFilters
+                    num = num + 1
+                    Cells(num, 1) = ff.SourceName
+                    Cells(num, 2) = sh.Name
+                Next ff
+                
+                'data fields
+                For Each df In pvt.DataFields
+                    num = num + 1
+                    Cells(num, 1) = df.SourceName
+                    Cells(num, 2) = sh.Name
+                Next df
+                
+            Next pvt
+        End If
+    Next sh
+    
+    Worksheets("USED FIELDS").Select
+    Columns("A:A").Select
+    Selection.Replace What:="#N/A", Replacement:="S Values?", LookAt:=xlPart _
+        , SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
+        ReplaceFormat:=False, FormulaVersion:=xlReplaceFormula2
+End Sub
 
 
